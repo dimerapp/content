@@ -33,6 +33,18 @@ export class ContentManager {
 	 */
 	private zoneUrls: { [url: string]: ProcessedDoc } = {}
 
+	/**
+	 * Rendered markdown cache
+	 */
+	private cacheStore: {
+		[url: string]: { error: null; html: string } | { error: string; html: null }
+	} = {}
+
+	/**
+	 * Boolean to know if html should be cached
+	 */
+	private cacheHtml: boolean = false
+
 	constructor(private appRoot: string, public view: EdgeContract) {
 		view.use(dimerEdge)
 		view.registerTemplate('dimer::base_template', {
@@ -58,6 +70,14 @@ export class ContentManager {
 
 		this.zones[name] = zone
 		return zone
+	}
+
+	/**
+	 * Enable/disable cache
+	 */
+	public cache(enable: boolean): this {
+		this.cacheHtml = enable
+		return this
 	}
 
 	/**
@@ -126,15 +146,27 @@ export class ContentManager {
 	 */
 	public async render(
 		url: string
-	): Promise<{ error: null; html: string } | { error: any; html: null }> {
-		const doc = this.getDoc(url)
-		if (!doc) {
-			return {
-				error: new Error(`Unable to lookup doc for "${url}"`),
-				html: null,
-			}
+	): Promise<{ error: null; html: string } | { error: string; html: null }> {
+		if (this.cacheStore[url]) {
+			return this.cacheStore[url]
 		}
 
-		return this.zones[doc.zone].render(doc)
+		let response: { error: null; html: string } | { error: string; html: null }
+		const doc = this.getDoc(url)
+
+		if (!doc) {
+			response = {
+				error: `Unable to lookup doc for "${url}"`,
+				html: null,
+			}
+		} else {
+			response = await this.zones[doc.zone].render(doc)
+		}
+
+		if (this.cacheHtml) {
+			this.cacheStore[url] = response
+		}
+
+		return response
 	}
 }

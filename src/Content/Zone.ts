@@ -351,7 +351,7 @@ export class Zone<Options extends any> {
 	 */
 	public async render(
 		doc: ProcessedDoc
-	): Promise<{ error: null; html: string } | { error: any; html: null }> {
+	): Promise<{ error: null; html: string } | { error: string; html: null }> {
 		try {
 			const fileContents = await readFile(doc.path, 'utf-8')
 			const file = new MarkdownFile(fileContents, this.config.markdownOptions)
@@ -373,7 +373,7 @@ export class Zone<Options extends any> {
 			}
 		} catch (error) {
 			return {
-				error,
+				error: error.message,
 				html: null,
 			}
 		}
