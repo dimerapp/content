@@ -41,6 +41,13 @@ export class ContentManager {
 	}
 
 	/**
+	 * Returns the relative path of a give file
+	 */
+	private relativePath(absPath: string) {
+		return absPath.replace(this.appRoot, '.')
+	}
+
+	/**
 	 * Register a custom zone
 	 */
 	public zone<Options extends any>(name: string, options?: Options) {
@@ -59,6 +66,7 @@ export class ContentManager {
 	 */
 	public collectDoc(doc: ProcessedDoc): this {
 		const preRegisteredUrl = this.zoneUrls[doc.url]
+		const preRegisteredPath = this.zoneFiles[doc.path]
 
 		/**
 		 * Dis-allow duplicate urls
@@ -71,7 +79,19 @@ export class ContentManager {
 			}
 
 			throw new Error(
-				`Duplicate url "${doc.url}" shared between "${doc.path}" && "${preRegisteredUrl.path}"`
+				`Duplicate url "${doc.url}" shared between "${this.relativePath(
+					doc.path
+				)}" && "${this.relativePath(preRegisteredUrl.path)}"`
+			)
+		}
+
+		/**
+		 * Dis-allow duplication file paths as we will resolve
+		 * urls to files using their absolute path
+		 */
+		if (preRegisteredPath) {
+			throw new Error(
+				`Doc path "${this.relativePath(doc.path)}" cannot be shared across multiple doc files`
 			)
 		}
 
@@ -92,6 +112,13 @@ export class ContentManager {
 	 */
 	public getDoc(url: string): null | ProcessedDoc {
 		return this.zoneUrls[url] || null
+	}
+
+	/**
+	 * Returns the doc for a given file path
+	 */
+	public getDocFromPath(path: string) {
+		return this.zoneFiles[path] || null
 	}
 
 	/**

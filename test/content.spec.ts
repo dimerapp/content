@@ -121,10 +121,7 @@ test.group('Content Manager', (group) => {
 		const fn = () => zone.register()
 		assert.throw(
 			fn,
-			`Duplicate url "/guides/introduction" shared between "${join(
-				fs.basePath,
-				'session.md'
-			)}" && "${join(fs.basePath, 'foo.md')}"`
+			`Duplicate url "/guides/introduction" shared between "./session.md" && "./foo.md"`
 		)
 	})
 
@@ -176,6 +173,53 @@ test.group('Content Manager', (group) => {
 			fn,
 			`Duplicate url "/guides/introduction" across multiple zones "tutorials" && "guides"`
 		)
+	})
+
+	test('return error when content file is used by multiple docs', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		const zone1 = manager
+			.zone('tutorials')
+			.baseUrl('/tutorials')
+			.docs([
+				{
+					name: 'Http',
+					categories: [
+						{
+							name: 'Basics',
+							docs: [
+								{
+									permalink: '/introduction',
+									title: 'Introduction',
+									contentPath: './foo.md',
+								},
+							],
+						},
+					],
+				},
+			])
+
+		zone.register()
+		const fn = () => zone1.register()
+
+		assert.throw(fn, `Doc path "./foo.md" cannot be shared across multiple doc files`)
 	})
 
 	test('find a doc by url', async (assert) => {
@@ -296,5 +340,174 @@ test.group('Content Manager', (group) => {
 			dedent`<p>This is a paragraph</p>
 			<pre class="language-typescript" data-lines-count="1" style="background-color: #263238;"><code><div class="line"><span style="color: #89DDFF;">import</span><span style="color: #EEFFFF;"> </span><span style="color: #89DDFF;">&#x27;</span><span style="color: #C3E88D;">foo</span><span style="color: #89DDFF;">&#x27;</span></div></code></pre>`
 		)
+	})
+
+	test('resolve relative links by referencing docs', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			dedent`
+			[Introduction](./foo.md)
+		`
+		)
+
+		const html = await manager.render('/guides/session')
+		assert.equal(html, '<p><a href="/guides/introduction">Introduction</a></p>')
+	})
+
+	test('resolve relative links to self', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			dedent`
+			[Session docs](./session.md)
+		`
+		)
+
+		const html = await manager.render('/guides/session')
+		assert.equal(html, '<p><a href="">Session docs</a></p>')
+	})
+
+	test('report error when links are broken', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			dedent`
+			[Session docs](./cookie.md)
+		`
+		)
+
+		const html = await manager.render('/guides/session')
+		assert.equal(html, '<p><a href="./cookie.md">Session docs</a></p>')
+	})
+
+	test('resolve relative links to other zone file', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './guides/session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		const zone1 = manager
+			.zone('tutorials')
+			.baseUrl('/tutorials')
+			.docs([
+				{
+					name: 'Http',
+					categories: [
+						{
+							name: 'Basics',
+							docs: [
+								{
+									permalink: '/introduction',
+									title: 'Introduction',
+									contentPath: './tutorials/foo.md',
+								},
+							],
+						},
+					],
+				},
+			])
+
+		zone.register()
+		zone1.register()
+
+		await fs.add(
+			'./guides/session.md',
+			dedent`
+			[Introduction](../tutorials/foo.md)
+		`
+		)
+
+		const html = await manager.render('/guides/session')
+		assert.equal(html, '<p><a href="/tutorials/introduction">Introduction</a></p>')
 	})
 })

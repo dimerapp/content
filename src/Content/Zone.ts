@@ -7,11 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import { join } from 'path'
 import { readFile } from 'fs-extra'
 import { Renderer } from '@dimerapp/edge'
+import { join, resolve, dirname } from 'path'
 import { ShikiRenderer } from '@dimerapp/shiki'
-import { MarkdownFile, MarkdownFileOptions, macros } from '@dimerapp/markdown'
+import { MarkdownFile, MarkdownFileOptions, macros, mdastTypes } from '@dimerapp/markdown'
 
 import { ContentManager } from '../Content'
 import { GroupNode, GroupTree, ProcessedDoc } from '../Contracts'
@@ -114,6 +114,38 @@ export class Zone<Options extends any> {
 	private async applyShiki(file: MarkdownFile) {
 		await this.shiki.boot()
 		file.transform(this.shiki.transform)
+	}
+
+	/**
+	 * Apply macros to the markdown file
+	 */
+	private async resolveUrls(file: MarkdownFile) {
+		file.on('link', (node: mdastTypes.Link, $file) => {
+			if (
+				node.url &&
+				(node.url.startsWith('./') || node.url.startsWith('../')) &&
+				node.url.endsWith('.md') &&
+				$file.filePath
+			) {
+				const resolvedUrl = resolve(dirname($file.filePath), node.url)
+				const doc = this.manager.getDocFromPath(resolvedUrl)
+
+				/**
+				 * Report errors
+				 */
+				if (!doc) {
+					const message = $file.report(
+						`Broken link to "${node.url}"`,
+						node.position,
+						'broken-md-reference'
+					)
+					message.fatal = true
+					return
+				}
+
+				node.url = doc.path === $file.filePath ? '' : doc.url
+			}
+		})
 	}
 
 	/**
@@ -310,6 +342,7 @@ export class Zone<Options extends any> {
 		file.filePath = doc.path
 
 		this.applyMacros(file)
+		this.resolveUrls(file)
 		await this.applyShiki(file)
 
 		await file.process()
