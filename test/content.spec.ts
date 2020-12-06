@@ -294,7 +294,7 @@ test.group('Content Manager', (group) => {
 		`
 		)
 
-		const html = await manager.render('/guides/session')
+		const { html } = await manager.render('/guides/session')
 		assert.equal(
 			html,
 			'<h1 id="hello-world"><a href="#hello-world" aria-hidden=true tabindex=-1><span class="icon icon-link"></span></a>Hello world</h1>\n<p>This is a paragraph</p>'
@@ -333,7 +333,7 @@ test.group('Content Manager', (group) => {
 			['This is a paragraph', '', '```ts', `import 'foo'`, '```'].join('\n')
 		)
 
-		const html = await manager.render('/guides/session')
+		const { html } = await manager.render('/guides/session')
 
 		assert.equal(
 			html,
@@ -376,7 +376,7 @@ test.group('Content Manager', (group) => {
 		`
 		)
 
-		const html = await manager.render('/guides/session')
+		const { html } = await manager.render('/guides/session')
 		assert.equal(html, '<p><a href="/guides/introduction">Introduction</a></p>')
 	})
 
@@ -414,7 +414,7 @@ test.group('Content Manager', (group) => {
 		`
 		)
 
-		const html = await manager.render('/guides/session')
+		const { html } = await manager.render('/guides/session')
 		assert.equal(html, '<p><a href="">Session docs</a></p>')
 	})
 
@@ -452,7 +452,7 @@ test.group('Content Manager', (group) => {
 		`
 		)
 
-		const html = await manager.render('/guides/session')
+		const { html } = await manager.render('/guides/session')
 		assert.equal(html, '<p><a href="./cookie.md">Session docs</a></p>')
 	})
 
@@ -507,7 +507,79 @@ test.group('Content Manager', (group) => {
 		`
 		)
 
-		const html = await manager.render('/guides/session')
+		const { html } = await manager.render('/guides/session')
 		assert.equal(html, '<p><a href="/tutorials/introduction">Introduction</a></p>')
+	})
+
+	test('return error when no doc for the url exists', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			['This is a paragraph', '', '```ts', `import 'foo'`, '```'].join('\n')
+		)
+
+		const { html, error } = await manager.render('/tutorials/session')
+		assert.isNull(html)
+		assert.equal(error.message, 'Unable to lookup doc for "/tutorials/session"')
+	})
+
+	test('return error when doc file is missing', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		const { html, error } = await manager.render('/guides/session')
+		assert.isNull(html)
+		assert.equal(
+			error.message,
+			`ENOENT: no such file or directory, open '${join(fs.basePath, './session.md')}'`
+		)
 	})
 })

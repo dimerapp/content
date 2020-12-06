@@ -337,18 +337,33 @@ export class Zone<Options extends any> {
 	/**
 	 * Render doc for a given url
 	 */
-	public async render(doc: ProcessedDoc): Promise<null | string> {
-		const file = new MarkdownFile(await readFile(doc.path, 'utf-8'), this.config.markdownOptions)
-		file.filePath = doc.path
+	public async render(
+		doc: ProcessedDoc
+	): Promise<{ error: null; html: string } | { error: any; html: null }> {
+		try {
+			const fileContents = await readFile(doc.path, 'utf-8')
+			const file = new MarkdownFile(fileContents, this.config.markdownOptions)
+			file.filePath = doc.path
 
-		this.applyMacros(file)
-		this.resolveUrls(file)
-		await this.applyShiki(file)
+			this.applyMacros(file)
+			this.resolveUrls(file)
+			await this.applyShiki(file)
 
-		await file.process()
+			await file.process()
 
-		return this.manager.view
-			.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), doc })
-			.render(this.config.template, { file })
+			const html = this.manager.view
+				.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), doc })
+				.render(this.config.template, { file })
+
+			return {
+				html,
+				error: null,
+			}
+		} catch (error) {
+			return {
+				error,
+				html: null,
+			}
+		}
 	}
 }

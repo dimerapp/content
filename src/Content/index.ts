@@ -124,10 +124,15 @@ export class ContentManager {
 	/**
 	 * Find if a doc for the given complete url exists or not
 	 */
-	public async render(url: string): Promise<null | string> {
+	public async render(
+		url: string
+	): Promise<{ error: null; html: string } | { error: any; html: null }> {
 		const doc = this.getDoc(url)
 		if (!doc) {
-			return null
+			return {
+				error: new Error(`Unable to lookup doc for "${url}"`),
+				html: null,
+			}
 		}
 
 		return this.zones[doc.zone].render(doc)
