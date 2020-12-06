@@ -1,6 +1,6 @@
 {
   "name": "@dimerapp/content",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Content module for rendering markdown via Edge",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
