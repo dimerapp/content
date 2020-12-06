@@ -82,5 +82,16 @@
     "@dimerapp/markdown": "^4.1.2",
     "@dimerapp/shiki": "^1.1.0",
     "fs-extra": "^9.0.1"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimerapp/content.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dimerapp/content/issues"
+  },
+  "homepage": "https://github.com/dimerapp/content#readme"
 }
