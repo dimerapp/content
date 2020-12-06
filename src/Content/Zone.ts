@@ -35,6 +35,7 @@ export class Zone<Options extends any> {
 		docs: GroupNode[]
 		template: string
 		markdownOptions: MarkdownFileOptions
+		baseContentPath?: string
 	} = {
 		baseUrl: this.name,
 		docs: [],
@@ -96,7 +97,9 @@ export class Zone<Options extends any> {
 	 * Makes absolute path to the doc file.
 	 */
 	private makePath(docPath: string): string {
-		return join(this.appRoot, docPath)
+		return this.config.baseContentPath
+			? join(this.appRoot, this.config.baseContentPath, docPath)
+			: join(this.appRoot, docPath)
 	}
 
 	/**
@@ -153,6 +156,15 @@ export class Zone<Options extends any> {
 	 */
 	public baseUrl(url: string): this {
 		this.config.baseUrl = url
+		return this
+	}
+
+	/**
+	 * Define the base content path for the zone. Doc
+	 * links must be relative to this path
+	 */
+	public baseContentPath(contentPath: string): this {
+		this.config.baseContentPath = contentPath
 		return this
 	}
 

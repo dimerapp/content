@@ -88,6 +88,68 @@ test.group('Content Manager', (group) => {
 		])
 	})
 
+	test('define base content path', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager
+			.zone('guides')
+			.docs([
+				{
+					name: 'Http',
+					categories: [
+						{
+							name: 'Basics',
+							docs: [
+								{
+									permalink: '/introduction',
+									title: 'Introduction',
+									contentPath: './foo.md',
+								},
+							],
+						},
+					],
+				},
+			])
+			.baseContentPath('guides')
+
+		zone.register()
+		assert.deepEqual(zone.getGroups(), [
+			{
+				name: 'Http',
+				landingDoc: {
+					url: '/guides/introduction',
+					title: 'Introduction',
+					zone: 'guides',
+					category: 'Basics',
+					group: 'Http',
+					path: join(fs.basePath, 'guides', './foo.md'),
+				},
+				categories: [
+					{
+						name: 'Basics',
+						landingDoc: {
+							url: '/guides/introduction',
+							title: 'Introduction',
+							zone: 'guides',
+							category: 'Basics',
+							group: 'Http',
+							path: join(fs.basePath, 'guides', './foo.md'),
+						},
+						docs: [
+							{
+								url: '/guides/introduction',
+								title: 'Introduction',
+								zone: 'guides',
+								category: 'Basics',
+								group: 'Http',
+								path: join(fs.basePath, 'guides', './foo.md'),
+							},
+						],
+					},
+				],
+			},
+		])
+	})
+
 	test('return error when urls are duplicate', async (assert) => {
 		const manager = new ContentManager(fs.basePath, new Edge())
 		const zone = manager.zone('guides').docs([
