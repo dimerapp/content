@@ -648,7 +648,61 @@ test.group('Content Manager', (group) => {
 	test('cache response in memory when caching is enabled', async (assert) => {
 		const manager = new ContentManager(fs.basePath, new Edge())
 		const zone = manager
-			.cache(true)
+			.cache('full')
+			.zone('guides')
+			.docs([
+				{
+					name: 'Http',
+					categories: [
+						{
+							name: 'Basics',
+							docs: [
+								{
+									permalink: '/introduction',
+									title: 'Introduction',
+									contentPath: './foo.md',
+								},
+								{
+									permalink: '/session',
+									title: 'Introduction',
+									contentPath: './session.md',
+								},
+							],
+						},
+					],
+				},
+			])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			dedent`
+			# Hello world
+
+			This is a paragraph
+		`
+		)
+
+		const { html } = await manager.render('/guides/session')
+		assert.equal(
+			html,
+			'<h1 id="hello-world"><a href="#hello-world" aria-hidden=true tabindex=-1><span class="icon icon-link"></span></a>Hello world</h1>\n<p>This is a paragraph</p>'
+		)
+
+		await fs.remove('./session.md')
+
+		const { html: postDeleteHtml } = await manager.render('/guides/session')
+		assert.equal(
+			postDeleteHtml,
+			'<h1 id="hello-world"><a href="#hello-world" aria-hidden=true tabindex=-1><span class="icon icon-link"></span></a>Hello world</h1>\n<p>This is a paragraph</p>'
+		)
+	})
+
+	test('cache markdown response in memory when caching is enabled', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager
+			.cache('markup')
 			.zone('guides')
 			.docs([
 				{

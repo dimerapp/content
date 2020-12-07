@@ -34,7 +34,7 @@ export class ContentManager {
 	private zoneUrls: { [url: string]: ProcessedDoc } = {}
 
 	/**
-	 * Rendered markdown cache
+	 * Rendered html cache
 	 */
 	private cacheStore: {
 		[url: string]: { error: null; html: string } | { error: string; html: null }
@@ -43,7 +43,7 @@ export class ContentManager {
 	/**
 	 * Boolean to know if html should be cached
 	 */
-	private cacheHtml: boolean = false
+	public cachingStrategy: 'full' | 'markup' | 'none' = 'none'
 
 	constructor(private appRoot: string, public view: EdgeContract) {
 		view.use(dimerEdge)
@@ -57,6 +57,18 @@ export class ContentManager {
 	 */
 	private relativePath(absPath: string) {
 		return absPath.replace(this.appRoot, '.')
+	}
+
+	/**
+	 * Add response to the cache store when "cachingStrategy = 'full'"
+	 */
+	private cacheResponse(
+		url: string,
+		response: { error: null; html: string } | { error: string; html: null }
+	) {
+		if (this.cachingStrategy === 'full') {
+			this.cacheStore[url] = response
+		}
 	}
 
 	/**
@@ -75,8 +87,8 @@ export class ContentManager {
 	/**
 	 * Enable/disable cache
 	 */
-	public cache(enable: boolean): this {
-		this.cacheHtml = enable
+	public cache(strategy: 'full' | 'markup' | 'none'): this {
+		this.cachingStrategy = strategy
 		return this
 	}
 
@@ -163,10 +175,7 @@ export class ContentManager {
 			response = await this.zones[doc.zone].render(doc)
 		}
 
-		if (this.cacheHtml) {
-			this.cacheStore[url] = response
-		}
-
+		this.cacheResponse(url, response)
 		return response
 	}
 }

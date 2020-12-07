@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+import revHash from 'rev-hash'
 import { readFile } from 'fs-extra'
 import { Renderer } from '@dimerapp/edge'
 import { join, resolve, dirname } from 'path'
@@ -62,6 +63,15 @@ export class Zone<Options extends any> {
 	 * Edge renderer to render dimer markdown ast using edge
 	 */
 	private edgeRenderer = new Renderer()
+
+	/**
+	 * Cache store
+	 */
+	private cacheStore: {
+		[filePath: string]: {
+			[hash: string]: MarkdownFile
+		}
+	} = {}
 
 	constructor(
 		private name: string,
@@ -149,6 +159,60 @@ export class Zone<Options extends any> {
 				node.url = doc.path === $file.filePath ? '' : doc.url
 			}
 		})
+	}
+
+	/**
+	 * Returns the compiled file from the cache
+	 */
+	private getFromCache(hash: string, filePath?: string) {
+		if (!filePath || !hash || this.manager.cachingStrategy !== 'markup') {
+			return null
+		}
+
+		const fileCache = this.cacheStore[filePath]
+		if (!fileCache) {
+			return null
+		}
+
+		return fileCache[hash] || null
+	}
+
+	/**
+	 * Caches the compiled file instance
+	 */
+	private setInCache(hash: string, file: MarkdownFile, filePath?: string) {
+		if (!filePath || !hash || this.manager.cachingStrategy !== 'markup') {
+			return null
+		}
+
+		this.cacheStore[filePath] = { [hash]: file }
+	}
+
+	/**
+	 * Process markdown content to the markdown file
+	 */
+	private async processMarkdown(contents: string, filePath?: string) {
+		const hash = this.manager.cachingStrategy === 'markup' ? revHash(contents) : ''
+
+		/**
+		 * Get from cache when exists
+		 */
+		const cachedFile = this.getFromCache(hash, filePath)
+		if (cachedFile) {
+			return cachedFile
+		}
+
+		const file = new MarkdownFile(contents, this.config.markdownOptions)
+		file.filePath = filePath
+
+		this.applyMacros(file)
+		this.resolveUrls(file)
+		await this.applyShiki(file)
+
+		await file.process()
+
+		this.setInCache(hash, file, filePath)
+		return file
 	}
 
 	/**
@@ -307,6 +371,8 @@ export class Zone<Options extends any> {
 				})
 			})
 		})
+
+		this.config.docs = []
 	}
 
 	/**
@@ -354,18 +420,36 @@ export class Zone<Options extends any> {
 	): Promise<{ error: null; html: string } | { error: string; html: null }> {
 		try {
 			const fileContents = await readFile(doc.path, 'utf-8')
-			const file = new MarkdownFile(fileContents, this.config.markdownOptions)
-			file.filePath = doc.path
-
-			this.applyMacros(file)
-			this.resolveUrls(file)
-			await this.applyShiki(file)
-
-			await file.process()
+			const file = await this.processMarkdown(fileContents, doc.path)
 
 			const html = this.manager.view
-				.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), doc })
-				.render(this.config.template, { file })
+				.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), doc, file })
+				.render(this.config.template)
+
+			return {
+				html,
+				error: null,
+			}
+		} catch (error) {
+			return {
+				error: error.message,
+				html: null,
+			}
+		}
+	}
+
+	/**
+	 * Render raw markdown from raw string
+	 */
+	public async renderRaw(
+		contents: string
+	): Promise<{ error: null; html: string } | { error: string; html: null }> {
+		try {
+			const file = await this.processMarkdown(contents)
+
+			const html = this.manager.view
+				.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), file })
+				.render(this.config.template)
 
 			return {
 				html,
