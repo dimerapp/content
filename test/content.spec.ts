@@ -744,8 +744,6 @@ test.group('Content Manager', (group) => {
 			'<h1 id="hello-world"><a href="#hello-world" aria-hidden=true tabindex=-1><span class="icon icon-link"></span></a>Hello world</h1>\n<p>This is a paragraph</p>'
 		)
 
-		await fs.remove('./session.md')
-
 		const { html: postDeleteHtml } = await manager.render('/guides/session')
 		assert.equal(
 			postDeleteHtml,
