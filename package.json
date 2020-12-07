@@ -81,6 +81,7 @@
     "@dimerapp/edge": "^1.0.0",
     "@dimerapp/markdown": "^4.1.2",
     "@dimerapp/shiki": "^1.1.0",
+    "@poppinss/hooks": "^2.0.0",
     "fs-extra": "^9.0.1",
     "rev-hash": "^3.0.0"
   },

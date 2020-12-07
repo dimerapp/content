@@ -9,6 +9,7 @@
 
 import revHash from 'rev-hash'
 import { readFile } from 'fs-extra'
+import { Hooks } from '@poppinss/hooks'
 import { Renderer } from '@dimerapp/edge'
 import { join, resolve, dirname } from 'path'
 import { ShikiRenderer } from '@dimerapp/shiki'
@@ -63,6 +64,11 @@ export class Zone<Options extends any> {
 	 * Edge renderer to render dimer markdown ast using edge
 	 */
 	private edgeRenderer = new Renderer()
+
+	/**
+	 * A collection of registered hooks
+	 */
+	private hooks = new Hooks()
 
 	/**
 	 * Cache store
@@ -209,7 +215,12 @@ export class Zone<Options extends any> {
 		this.resolveUrls(file)
 		await this.applyShiki(file)
 
+		/**
+		 * Execute hooks and process file
+		 */
+		await this.hooks.exec('before', 'compile', [file, this])
 		await file.process()
+		await this.hooks.exec('after', 'compile', [file, this])
 
 		this.setInCache(hash, file, filePath)
 		return file
@@ -273,6 +284,28 @@ export class Zone<Options extends any> {
 	 */
 	public docs(docs: GroupNode[]): this {
 		this.config.docs = docs
+		return this
+	}
+
+	/**
+	 * Register a before hook
+	 */
+	public before(
+		event: 'compile',
+		callback: (file: MarkdownFile, zone: this) => Promise<void | void>
+	): this {
+		this.hooks.add('before', event, callback)
+		return this
+	}
+
+	/**
+	 * Register an after hook
+	 */
+	public after(
+		event: 'compile',
+		callback: (file: MarkdownFile, zone: this) => Promise<void | void>
+	): this {
+		this.hooks.add('after', event, callback)
 		return this
 	}
 
