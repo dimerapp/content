@@ -218,9 +218,9 @@ export class Zone<Options extends any> {
 		/**
 		 * Execute hooks and process file
 		 */
-		await this.hooks.exec('before', 'compile', [file, this])
+		await this.hooks.exec('before', 'compile', file, this)
 		await file.process()
-		await this.hooks.exec('after', 'compile', [file, this])
+		await this.hooks.exec('after', 'compile', file, this)
 
 		this.setInCache(hash, file, filePath)
 		return file
@@ -292,7 +292,7 @@ export class Zone<Options extends any> {
 	 */
 	public before(
 		event: 'compile',
-		callback: (file: MarkdownFile, zone: this) => Promise<void | void>
+		callback: (file: MarkdownFile, zone: this) => Promise<void> | void
 	): this {
 		this.hooks.add('before', event, callback)
 		return this
@@ -303,7 +303,7 @@ export class Zone<Options extends any> {
 	 */
 	public after(
 		event: 'compile',
-		callback: (file: MarkdownFile, zone: this) => Promise<void | void>
+		callback: (file: MarkdownFile, zone: this) => Promise<void> | void
 	): this {
 		this.hooks.add('after', event, callback)
 		return this

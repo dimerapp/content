@@ -700,6 +700,8 @@ test.group('Content Manager', (group) => {
 	})
 
 	test('cache markdown response in memory when caching is enabled', async (assert) => {
+		assert.plan(3)
+
 		const manager = new ContentManager(fs.basePath, new Edge())
 		const zone = manager
 			.cache('markup')
@@ -737,6 +739,14 @@ test.group('Content Manager', (group) => {
 			This is a paragraph
 		`
 		)
+
+		/**
+		 * The callback will be invoked only once since we have
+		 * caching enabled
+		 */
+		zone.before('compile', (file) => {
+			assert.equal(file.filePath, join(fs.basePath, './session.md'))
+		})
 
 		const { html } = await manager.render('/guides/session')
 		assert.equal(
