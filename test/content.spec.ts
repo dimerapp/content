@@ -573,6 +573,85 @@ test.group('Content Manager', (group) => {
 		assert.equal(html, '<p><a href="/tutorials/introduction">Introduction</a></p>')
 	})
 
+	test('resolve relative links with hash fragements', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			dedent`
+			[Introduction](./foo.md#introduction)
+		`
+		)
+
+		const { html } = await manager.render('/guides/session')
+		assert.equal(html, '<p><a href="/guides/introduction#introduction">Introduction</a></p>')
+	})
+
+	test('resolve relative links with query string', async (assert) => {
+		const manager = new ContentManager(fs.basePath, new Edge())
+		const zone = manager.zone('guides').docs([
+			{
+				name: 'Http',
+				categories: [
+					{
+						name: 'Basics',
+						docs: [
+							{
+								permalink: '/introduction',
+								title: 'Introduction',
+								contentPath: './foo.md',
+							},
+							{
+								permalink: '/session',
+								title: 'Introduction',
+								contentPath: './session.md',
+							},
+						],
+					},
+				],
+			},
+		])
+
+		zone.register()
+
+		await fs.add(
+			'./session.md',
+			dedent`
+			[Introduction](./foo.md?foo=bar#introduction)
+		`
+		)
+
+		const { html } = await manager.render('/guides/session')
+		assert.equal(
+			html,
+			'<p><a href="/guides/introduction?foo=bar#introduction">Introduction</a></p>'
+		)
+	})
+
 	test('return error when no doc for the url exists', async (assert) => {
 		const manager = new ContentManager(fs.basePath, new Edge())
 		const zone = manager.zone('guides').docs([

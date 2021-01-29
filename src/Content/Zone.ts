@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+import parse from 'parseurl'
 import revHash from 'rev-hash'
 import { readFile } from 'fs-extra'
 import { Hooks } from '@poppinss/hooks'
@@ -143,17 +144,35 @@ export class Zone<Options extends any> {
 	}
 
 	/**
+	 * Find if uri is relative or not
+	 */
+	private isRelativeFilePath(pathname: string) {
+		return pathname.startsWith('./') || pathname.startsWith('../')
+	}
+
+	/**
+	 * Find if uri has a markdown extension or not
+	 */
+	private isMarkdownFile(pathname: string) {
+		return pathname.endsWith('.md')
+	}
+
+	/**
 	 * Apply macros to the markdown file
 	 */
 	private async resolveUrls(file: MarkdownFile) {
 		file.on('link', (node: mdastTypes.Link, $file) => {
+			let { pathname, hash, search } = parse({ url: node.url })
+			hash = hash || ''
+			search = search || ''
+
 			if (
-				node.url &&
-				(node.url.startsWith('./') || node.url.startsWith('../')) &&
-				node.url.endsWith('.md') &&
+				pathname &&
+				this.isRelativeFilePath(pathname) &&
+				this.isMarkdownFile(pathname) &&
 				$file.filePath
 			) {
-				const resolvedUrl = resolve(dirname($file.filePath), node.url)
+				const resolvedUrl = resolve(dirname($file.filePath), pathname)
 				const doc = this.manager.getDocFromPath(resolvedUrl)
 
 				/**
@@ -161,7 +180,7 @@ export class Zone<Options extends any> {
 				 */
 				if (!doc) {
 					const message = $file.report(
-						`Broken link to "${node.url}"`,
+						`Broken link to "${pathname}"`,
 						node.position,
 						'broken-md-reference'
 					)
@@ -169,7 +188,7 @@ export class Zone<Options extends any> {
 					return
 				}
 
-				node.url = doc.path === $file.filePath ? '' : doc.url
+				node.url = `${doc.path === $file.filePath ? '' : doc.url}${search}${hash}`
 			}
 		})
 	}
