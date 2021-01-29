@@ -11,7 +11,7 @@ import { EdgeContract } from 'edge.js'
 import dimerEdge from '@dimerapp/edge'
 
 import { Zone } from './Zone'
-import { ProcessedDoc } from '../Contracts'
+import { ProcessedDoc, GroupTree } from '../Contracts'
 
 /**
  * Content manager to parse and render markdown files for a documentation
@@ -44,6 +44,11 @@ export class ContentManager {
 	 * Boolean to know if html should be cached
 	 */
 	public cachingStrategy: 'full' | 'markup' | 'none' = 'none'
+
+	/**
+	 * Zones tree shared with the templates
+	 */
+	public zonesTree: { [name: string]: GroupTree[] } = {}
 
 	constructor(private appRoot: string, public view: EdgeContract) {
 		view.use(dimerEdge)

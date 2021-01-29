@@ -442,6 +442,7 @@ export class Zone<Options extends any> {
 		})
 
 		this.config.docs = []
+		this.manager.zonesTree[this.name] = this.groupsTree
 	}
 
 	/**
@@ -495,6 +496,7 @@ export class Zone<Options extends any> {
 				.share({
 					...this.edgeRenderers,
 					groups: this.getGroups(),
+					zones: this.manager.zonesTree,
 					doc,
 					file,
 				})
@@ -525,6 +527,7 @@ export class Zone<Options extends any> {
 				.share({
 					...this.edgeRenderers,
 					groups: this.getGroups(),
+					zones: this.manager.zonesTree,
 					file,
 				})
 				.render(this.config.template)
