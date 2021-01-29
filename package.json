@@ -78,7 +78,7 @@
     "anyBranch": false
   },
   "dependencies": {
-    "@dimerapp/edge": "^1.0.0",
+    "@dimerapp/edge": "^1.1.0",
     "@dimerapp/markdown": "^5.0.2",
     "@dimerapp/shiki": "^2.0.0",
     "@poppinss/hooks": "^2.0.0",

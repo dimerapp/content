@@ -61,9 +61,16 @@ export class Zone<Options extends any> {
 	private shiki = new ShikiRenderer(this.appRoot)
 
 	/**
-	 * Edge renderer to render dimer markdown ast using edge
+	 * A set of registered edge renderers. One can register multiple
+	 * renderers to render different parts of the page differently.
+	 * For example:
+	 *
+	 * - One renderer for docs.
+	 * - One for table of contents.
 	 */
-	private edgeRenderer = new Renderer()
+	private edgeRenderers: { [name: string]: Renderer } = {
+		dimerRenderer: new Renderer(),
+	}
 
 	/**
 	 * A collection of registered hooks
@@ -310,6 +317,16 @@ export class Zone<Options extends any> {
 	}
 
 	/**
+	 * Register custom renderers. It is recommended to prefix the
+	 * property name with `renderer`, since the renderers are
+	 * merged with the template state.
+	 */
+	public renderer(name: string, renderer: Renderer): this {
+		this.edgeRenderers[name] = renderer
+		return this
+	}
+
+	/**
 	 * Define base template for rendering the doc
 	 */
 	public template(templatePath: string): this {
@@ -456,7 +473,12 @@ export class Zone<Options extends any> {
 			const file = await this.processMarkdown(fileContents, doc.path)
 
 			const html = this.manager.view
-				.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), doc, file })
+				.share({
+					...this.edgeRenderers,
+					groups: this.getGroups(),
+					doc,
+					file,
+				})
 				.render(this.config.template)
 
 			return {
@@ -481,7 +503,11 @@ export class Zone<Options extends any> {
 			const file = await this.processMarkdown(contents)
 
 			const html = this.manager.view
-				.share({ dimerRenderer: this.edgeRenderer, groups: this.getGroups(), file })
+				.share({
+					...this.edgeRenderers,
+					groups: this.getGroups(),
+					file,
+				})
 				.render(this.config.template)
 
 			return {
