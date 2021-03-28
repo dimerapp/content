@@ -19,8 +19,8 @@ A short brief
 
 ## Usage
 
-[circleci-image]: https://img.shields.io/circleci/project/github/null/null/master.svg?style=for-the-badge&logo=circleci
-[circleci-url]: https://circleci.com/gh/null/null "circleci"
+[circleci-image]: https://img.shields.io/circleci/project/github/dimerapp/content/master.svg?style=for-the-badge&logo=circleci
+[circleci-url]: https://circleci.com/gh/dimerapp/content "circleci"
 
 [typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
 [typescript-url]:  "typescript"
