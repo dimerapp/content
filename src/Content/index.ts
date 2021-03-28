@@ -53,7 +53,7 @@ export class ContentManager {
 	constructor(private appRoot: string, public view: EdgeContract) {
 		view.use(dimerEdge)
 		view.registerTemplate('dimer::base_template', {
-			template: '@dimerTree(file.ast.children)',
+			template: '@dimerTree(file.ast.children)~',
 		})
 	}
 
