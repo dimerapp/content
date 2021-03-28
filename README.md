@@ -11,7 +11,7 @@
 # @dimerapp/content
 > Tagline
 
-[![circleci-image]][circleci-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url]
+[![circleci-image]][circleci-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url] [![synk-image]][synk-url]
 
 A short brief
 
@@ -30,3 +30,6 @@ A short brief
 
 [license-image]: https://img.shields.io/npm/l/@dimerapp/content?color=blueviolet&style=for-the-badge
 [license-url]: LICENSE.md "license"
+
+[synk-image]: https://img.shields.io/snyk/vulnerabilities/github/dimerapp/content?label=Synk%20Vulnerabilities&style=for-the-badge
+[synk-url]: https://snyk.io/test/github/dimerapp/content?targetFile=package.json "synk"
