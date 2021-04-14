@@ -41,7 +41,6 @@ export type GroupTree = {
   landingDoc: ProcessedDoc
   categories: {
     name: string
-    landingDoc: ProcessedDoc
     docs: ProcessedDoc[]
   }[]
 }

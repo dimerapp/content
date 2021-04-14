@@ -409,7 +409,6 @@ export class Zone<Options extends any> {
         const treeCategory: GroupTree['categories'][0] = {
           name: category.name,
           docs: [],
-          landingDoc,
         }
 
         treeGroup.categories.push(treeCategory)
@@ -432,7 +431,9 @@ export class Zone<Options extends any> {
           /**
            * Update landing doc
            */
-          if (doc.isLandingDoc || index === 0) {
+          if (index === 0 && !landingDoc.url) {
+            Object.assign(landingDoc, processedDoc)
+          } else if (doc.isLandingDoc) {
             Object.assign(landingDoc, processedDoc)
           }
 

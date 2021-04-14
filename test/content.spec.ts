@@ -64,14 +64,6 @@ test.group('Content Manager', (group) => {
         categories: [
           {
             name: 'Basics',
-            landingDoc: {
-              url: '/guides/introduction',
-              title: 'Introduction',
-              zone: 'guides',
-              category: 'Basics',
-              group: 'Http',
-              path: join(fs.basePath, './foo.md'),
-            },
             docs: [
               {
                 url: '/guides/introduction',
@@ -126,14 +118,6 @@ test.group('Content Manager', (group) => {
         categories: [
           {
             name: 'Basics',
-            landingDoc: {
-              url: '/guides/introduction',
-              title: 'Introduction',
-              zone: 'guides',
-              category: 'Basics',
-              group: 'Http',
-              path: join(fs.basePath, 'guides', './foo.md'),
-            },
             docs: [
               {
                 url: '/guides/introduction',
@@ -838,5 +822,93 @@ test.group('Content Manager', (group) => {
       postDeleteHtml,
       '<h1 id="hello-world"><a href="#hello-world" aria-hidden=true tabindex=-1><span class="icon icon-link"></span></a>Hello world</h1>\n<p>This is a paragraph</p>'
     )
+  })
+
+  test('do not redefine landingDoc when using multiple categories', async (assert) => {
+    const manager = new ContentManager(fs.basePath, new Edge())
+    const zone = manager.zone('guides').docs([
+      {
+        name: 'Http',
+        categories: [
+          {
+            name: 'Basics',
+            docs: [
+              {
+                permalink: '/introduction',
+                title: 'Introduction',
+                contentPath: './foo.md',
+              },
+              {
+                permalink: '/installation',
+                title: 'Installation',
+                contentPath: './installation.md',
+                isLandingDoc: true,
+              },
+            ],
+          },
+          {
+            name: 'Http',
+            docs: [
+              {
+                permalink: '/context',
+                title: 'Context',
+                contentPath: './ctx.md',
+              },
+            ],
+          },
+        ],
+      },
+    ])
+
+    zone.register()
+    assert.deepEqual(zone.getGroups(), [
+      {
+        name: 'Http',
+        landingDoc: {
+          url: '/guides/installation',
+          title: 'Installation',
+          zone: 'guides',
+          category: 'Basics',
+          group: 'Http',
+          path: join(fs.basePath, './installation.md'),
+        },
+        categories: [
+          {
+            name: 'Basics',
+            docs: [
+              {
+                url: '/guides/introduction',
+                title: 'Introduction',
+                zone: 'guides',
+                category: 'Basics',
+                group: 'Http',
+                path: join(fs.basePath, './foo.md'),
+              },
+              {
+                url: '/guides/installation',
+                title: 'Installation',
+                zone: 'guides',
+                category: 'Basics',
+                group: 'Http',
+                path: join(fs.basePath, './installation.md'),
+              },
+            ],
+          },
+          {
+            name: 'Http',
+            docs: [
+              {
+                url: '/guides/context',
+                title: 'Context',
+                zone: 'guides',
+                category: 'Http',
+                group: 'Http',
+                path: join(fs.basePath, './ctx.md'),
+              },
+            ],
+          },
+        ],
+      },
+    ])
   })
 })
