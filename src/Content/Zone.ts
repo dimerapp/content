@@ -493,7 +493,7 @@ export class Zone<Options extends any> {
       const fileContents = await readFile(doc.path, 'utf-8')
       const file = await this.processMarkdown(fileContents, doc.path)
 
-      const html = this.manager.view
+      const html = await this.manager.view
         .share({
           ...this.edgeRenderers,
           groups: this.getGroups(),
@@ -524,7 +524,7 @@ export class Zone<Options extends any> {
     try {
       const file = await this.processMarkdown(contents)
 
-      const html = this.manager.view
+      const html = await this.manager.view
         .share({
           ...this.edgeRenderers,
           groups: this.getGroups(),
