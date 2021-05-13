@@ -384,7 +384,8 @@ test.group('Content Manager', (group) => {
     assert.equal(
       html,
       dedent`<p>This is a paragraph</p>
-			<pre class="language-typescript" data-lines-count="1" style="background-color: #292D3E;"><code><div class="line"><span style="color: #89DDFF;">import</span><span style="color: #A6ACCD;"> </span><span style="color: #89DDFF;">&#x27;</span><span style="color: #C3E88D;">foo</span><span style="color: #89DDFF;">&#x27;</span></div></code></pre>`
+			<pre class="language-typescript" data-lines-count="1" style="background-color: #292D3E;"><code><div class="line"><span style="color: #89DDFF;">import</span><span style="color: #A6ACCD;"> </span><span style="color: #89DDFF;">&#x27;</span><span style="color: #C3E88D;">foo</span><span style="color: #89DDFF;">&#x27;</span>
+   </div></code></pre>`
     )
   })
 
