@@ -1,7 +1,7 @@
 {
-  "name": "<%= PACKAGE_NAME %>",
-  "version": "0.0.0",
-  "description": "<%= PACKAGE_DESCRIPTION %>",
+  "name": "@dimerapp/content",
+  "version": "2.0.4",
+  "description": "Manage metadata for docs",
   "type": "module",
   "files": [
     "src",
@@ -21,15 +21,15 @@
     "prepublishOnly": "npm run build",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
-    "sync-labels": "github-label-sync --labels .github/labels.json <%= PACKAGE_NAME %>"
+    "sync-labels": "github-label-sync --labels .github/labels.json dimerapp/content"
   },
   "publishConfig": {
     "access": "public",
     "tag": "latest"
   },
   "keywords": [],
-  "author": "<%= NPM_AUTHORS %>",
-  "license": "<%= LICENSE %>",
+  "author": "virk,dimerapp",
+  "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.0.2",
@@ -40,7 +40,6 @@
     "@swc/core": "^1.2.203",
     "@types/node": "^18.0.0",
     "del-cli": "^4.0.1",
-    "ejs": "^3.1.8",
     "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-adonis": "^3.0.2",
@@ -52,6 +51,14 @@
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimerapp/content.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dimerapp/content/issues"
+  },
+  "homepage": "https://github.com/dimerapp/content#readme",
   "eslintConfig": {
     "extends": [
       "plugin:adonis/typescriptPackage",
