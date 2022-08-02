@@ -44,10 +44,16 @@ export class Zone {
   /**
    * Add a new content version to the zone
    */
-  version(slug: string): Version {
+  version(slug: string, createIfMissing: false): Version | null
+  version(slug: string, createIfMissing?: true): Version
+  version(slug: string, createIfMissing = true): Version | null {
     const existingVersion = this.versions.find((version) => version.slug === slug)
     if (existingVersion) {
       return existingVersion
+    }
+
+    if (!createIfMissing) {
+      return null
     }
 
     const version = new Version(slug, this)

@@ -33,7 +33,7 @@ export class Version {
   /**
    * Registered categories
    */
-  categories: Category[]
+  categories: Category[] = []
 
   /**
    * The method to invoke to render a doc

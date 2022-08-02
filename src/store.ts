@@ -13,12 +13,18 @@ import { Zone } from './zone.js'
  * Exposes the API to register and fetch zones
  */
 export class Store {
-  zones: Zone[]
+  zones: Zone[] = []
 
-  zone(slug: string): Zone {
+  zone(slug: string, createIfMissing: false): Zone | null
+  zone(slug: string, createIfMissing?: true): Zone
+  zone(slug: string, createIfMissing = true): Zone | null {
     const existingZone = this.zones.find((zone) => zone.slug === slug)
     if (existingZone) {
       return existingZone
+    }
+
+    if (!createIfMissing) {
+      return null
     }
 
     const zone = new Zone(slug)

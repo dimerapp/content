@@ -4,11 +4,13 @@
   "description": "Manage metadata for docs",
   "type": "module",
   "files": [
-    "src",
-    "index.js"
+    "build/src",
+    "build/index.d.ts",
+    "build/index.js"
   ],
+  "main": "./build/index.js",
   "exports": {
-    ".": "./index.js"
+    ".": "./build/index.js"
   },
   "scripts": {
     "pretest": "npm run lint",
