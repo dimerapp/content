@@ -34,7 +34,7 @@ export class PagesCollection {
    * Removes the sourrounded slashes from the permalink
    */
   #removeSorroundedSlashes(permalink: string) {
-    return permalink.replace(/^\//, '').replace(/\/$/, '')
+    return permalink === '/' ? permalink : permalink.replace(/^\//, '').replace(/\/$/, '')
   }
 
   /**
