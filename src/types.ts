@@ -18,9 +18,19 @@ export type Doc = {
   title: string
 }
 
+export type Page = Doc
+
 export type LookupDoc = Doc & {
-  version: { name: string; slug: string; makeUrl(permalink: string): string }
+  url: string
+  makeUrl(permalink: string): string
+  version: { name: string; slug: string }
   zone: { name: string; slug: string }
   category: string
   categories: Category[]
+}
+
+export type LookupPage = Page & {
+  url: string
+  makeUrl(permalink: string): string
+  zone?: { name: string; slug: string }
 }

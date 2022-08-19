@@ -7,7 +7,9 @@
  * file that was distributed with this source code.
  */
 
+import { Page } from './types.js'
 import { Version } from './version.js'
+import { PagesCollection } from './pages_collection.js'
 
 /**
  * Exposes the API to configure a zone
@@ -28,6 +30,8 @@ export class Zone {
    */
   versions: Version[] = []
 
+  pagesCollection: PagesCollection
+
   constructor(slug: string) {
     this.slug = slug
     this.name = slug
@@ -42,7 +46,18 @@ export class Zone {
   }
 
   /**
-   * Add a new content version to the zone
+   * Register a pages collection with the zone. Calling this
+   * method without the pages array will return the existing
+   * instantiated collection.
+   */
+  pages(pages?: Page[]): PagesCollection {
+    this.pagesCollection = this.pagesCollection || new PagesCollection(pages || [], this)
+    return this.pagesCollection
+  }
+
+  /**
+   * Add a new zone version or fetch an existing one. A new version
+   * is created unless "createIfMissing" is set to "false".
    */
   version(slug: string, createIfMissing: false): Version | null
   version(slug: string, createIfMissing?: true): Version

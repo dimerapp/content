@@ -41,18 +41,34 @@ export class Version {
   renderCallback: (doc: LookupDoc, ...args: any[]) => Promise<string> | string
 
   /**
+   * Reference to the hero doc (the first doc) of the version.
+   * Returns null if not categories and docs are defined
+   */
+  get heroDoc() {
+    return this.categories[0]?.docs[0] || null
+  }
+
+  /**
+   * Removes the sourrounded slashes from the permalink
+   */
+  #removeSorroundedSlashes(permalink: string) {
+    return permalink.replace(/^\//, '').replace(/\/$/, '')
+  }
+
+  /**
    * Creates the lookup doc
    */
   #createLookupDoc(doc: Doc, category: string) {
     return {
       ...doc,
       category,
+      url: `/${this.zone.slug}/${this.slug}/${doc.permalink}`,
+      makeUrl: (docPermalink: string) => {
+        return `/${this.zone.slug}/${this.slug}/${this.#removeSorroundedSlashes(docPermalink)}`
+      },
       version: {
         name: this.name,
         slug: this.slug,
-        makeUrl: (docPermalink: string) => {
-          return `/${this.zone.slug}/${this.slug}/${docPermalink}`
-        },
       },
       zone: { name: this.zone.name, slug: this.zone.slug },
       categories: this.categories,
@@ -106,7 +122,9 @@ export class Version {
   ): null | (LookupDoc & { render(...args: any[]): Promise<string> | string }) {
     for (const category of this.categories) {
       for (const doc of category.docs) {
-        if (doc.permalink === permalink) {
+        doc.permalink = this.#removeSorroundedSlashes(doc.permalink)
+
+        if (doc.permalink === permalink || doc.permalink === `/${permalink}`) {
           let lookupDoc = this.#createLookupDoc(doc, category.name)
           return {
             ...lookupDoc,

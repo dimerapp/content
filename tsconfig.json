@@ -17,7 +17,7 @@
     "strictFunctionTypes": true,
     "noImplicitThis": true,
     "skipLibCheck": true,
-    "types": ["@types/node"]
+    "types": ["@types/node", "@types/fs-extra"]
   },
   "include": ["./**/*"],
   "exclude": ["./node_modules", "./build"],
