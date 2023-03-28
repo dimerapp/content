@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+import { EOL } from 'node:os'
 import { Edge } from 'edge.js'
 import { join } from 'node:path'
 import { test } from '@japa/runner'
@@ -159,7 +160,7 @@ test.group('Collection', (group) => {
       ])
     )
 
-    await fs.create('home.md', ['# Hello world', '', 'This is a simple markdown file'].join('\n'))
+    await fs.create('home.md', ['# Hello world', '', 'This is a simple markdown file'].join(EOL))
 
     const collection = Collection.create()
     collection.db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
@@ -171,7 +172,7 @@ test.group('Collection', (group) => {
       [
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p>This is a simple markdown file</p>',
-      ].join('\n')
+      ].join(EOL)
     )
   })
 
@@ -192,7 +193,7 @@ test.group('Collection', (group) => {
       ])
     )
 
-    await fs.create('home.md', ['# Hello world', '', 'This is a simple markdown file'].join('\n'))
+    await fs.create('home.md', ['# Hello world', '', 'This is a simple markdown file'].join(EOL))
     await fs.create(
       'docs.edge',
       [
@@ -201,7 +202,7 @@ test.group('Collection', (group) => {
         `@!component('dimer_contents', { nodes: file.ast.children, renderer })~`,
         '',
         '</html>',
-      ].join('\n')
+      ].join(EOL)
     )
 
     const renderer = new Renderer(new Edge().mount(fs.basePath))
@@ -219,7 +220,7 @@ test.group('Collection', (group) => {
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden=true tabindex=-1><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p>This is a simple markdown file</p>',
         '</html>',
-      ].join('\n')
+      ].join(EOL)
     )
   })
 
@@ -240,7 +241,7 @@ test.group('Collection', (group) => {
       ])
     )
 
-    await fs.create('home.md', ['# Hello world', '', '[Say hi](./hi.md)'].join('\n'))
+    await fs.create('home.md', ['# Hello world', '', '[Say hi](./hi.md)'].join(EOL))
 
     const collection = Collection.create()
     collection.db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
@@ -252,7 +253,7 @@ test.group('Collection', (group) => {
       [
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p><a href="/docs/hi">Say hi</a></p>',
-      ].join('\n')
+      ].join(EOL)
     )
   })
 
@@ -273,7 +274,7 @@ test.group('Collection', (group) => {
       ])
     )
 
-    await fs.create('home.md', ['# Hello world', '', '[Say hi](./foo)'].join('\n'))
+    await fs.create('home.md', ['# Hello world', '', '[Say hi](./foo)'].join(EOL))
 
     const collection = Collection.create()
     collection.db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
@@ -285,7 +286,7 @@ test.group('Collection', (group) => {
       [
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p><a href="./foo">Say hi</a></p>',
-      ].join('\n')
+      ].join(EOL)
     )
   })
 
@@ -301,7 +302,7 @@ test.group('Collection', (group) => {
       ])
     )
 
-    await fs.create('home.md', ['# Hello world', '', '[Say hi](./hi.md)'].join('\n'))
+    await fs.create('home.md', ['# Hello world', '', '[Say hi](./hi.md)'].join(EOL))
 
     let messages: any[] = []
     const collection = Collection.create().db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
@@ -318,7 +319,7 @@ test.group('Collection', (group) => {
       [
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p><a href="./hi.md">Say hi</a></p>',
-      ].join('\n')
+      ].join(EOL)
     )
 
     assert.equal(messages[0].reason, 'Broken link to "./hi.md"')
@@ -341,7 +342,7 @@ test.group('Collection', (group) => {
       ])
     )
 
-    await fs.create('home.md', ['# Hello world', '', '[Say hi](./home.md#hello-world)'].join('\n'))
+    await fs.create('home.md', ['# Hello world', '', '[Say hi](./home.md#hello-world)'].join(EOL))
 
     const collection = Collection.create()
     collection.db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
@@ -353,7 +354,7 @@ test.group('Collection', (group) => {
       [
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p><a href="#hello-world">Say hi</a></p>',
-      ].join('\n')
+      ].join(EOL)
     )
   })
 })
