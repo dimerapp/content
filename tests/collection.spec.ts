@@ -11,6 +11,8 @@ import { EOL } from 'node:os'
 import { Edge } from 'edge.js'
 import { join } from 'node:path'
 import { test } from '@japa/runner'
+import { RenderingPipeline, dimer } from '@dimerapp/edge'
+
 import { Renderer } from '../src/renderer.js'
 import { Collection } from '../src/collection/main.js'
 import urlResolver from '../src/collection/url_resolver.js'
@@ -199,13 +201,13 @@ test.group('Collection', (group) => {
       [
         '<html>',
         '',
-        `@!component('dimer_contents', { nodes: file.ast.children, renderer })~`,
+        `@!component('dimer_contents', { nodes: file.ast.children, pipeline })~`,
         '',
         '</html>',
       ].join(EOL)
     )
 
-    const renderer = new Renderer(new Edge().mount(fs.basePath))
+    const renderer = new Renderer(new Edge().mount(fs.basePath).use(dimer), new RenderingPipeline())
     renderer.useTemplate('docs.edge')
 
     const collection = Collection.create()

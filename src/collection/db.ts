@@ -7,8 +7,8 @@
  * file that was distributed with this source code.
  */
 
-import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import type { DatabaseEntry } from '../types.js'
 

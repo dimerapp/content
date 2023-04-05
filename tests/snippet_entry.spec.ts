@@ -14,6 +14,7 @@ import { test } from '@japa/runner'
 import { Renderer } from '../src/renderer.js'
 import { Snippet } from '../src/snippet/main.js'
 import { SnippetEntry } from '../src/snippet/snippet_entry.js'
+import { RenderingPipeline, dimer } from '@dimerapp/edge'
 
 test.group('Snippet file', () => {
   test('render a markdown file to HTML', async ({ assert, fs }) => {
@@ -83,13 +84,13 @@ test.group('Snippet file', () => {
       [
         '<html>',
         '',
-        `@!component('dimer_contents', { nodes: file.ast.children, renderer })~`,
+        `@!component('dimer_contents', { nodes: file.ast.children, pipeline })~`,
         '',
         '</html>',
       ].join('\n')
     )
 
-    const renderer = new Renderer(new Edge().mount(fs.basePath))
+    const renderer = new Renderer(new Edge().mount(fs.basePath).use(dimer), new RenderingPipeline())
     renderer.codeBlocksTheme('nord').useTemplate('docs.edge')
 
     const entry = Snippet.create(join(fs.basePath, 'hello_world.md'))
@@ -117,13 +118,13 @@ test.group('Snippet file', () => {
         '<html>',
         '',
         '<h1> {{ file.frontmatter.title }} </h1>',
-        `@!component('dimer_contents', { nodes: file.ast.children, renderer })~`,
+        `@!component('dimer_contents', { nodes: file.ast.children, pipeline })~`,
         '',
         '</html>',
       ].join('\n')
     )
 
-    const renderer = new Renderer(new Edge().mount(fs.basePath))
+    const renderer = new Renderer(new Edge().mount(fs.basePath).use(dimer), new RenderingPipeline())
     renderer
       .codeBlocksTheme('nord')
       .useTemplate('docs.edge')

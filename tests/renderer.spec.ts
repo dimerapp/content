@@ -10,6 +10,7 @@
 import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 import { Renderer } from '../src/renderer.js'
+import { RenderingPipeline } from '@dimerapp/edge'
 
 test.group('Renderer', () => {
   test('get rendering options without configuring template engine', async ({ assert }) => {
@@ -20,7 +21,9 @@ test.group('Renderer', () => {
 
   test('get rendering options with template engine', async ({ assert }) => {
     const edge = new Edge()
-    const renderingOptions = new Renderer(edge).useTemplate('docs.edge').getRenderingOptions()
+    const renderingOptions = new Renderer(edge, new RenderingPipeline())
+      .useTemplate('docs.edge')
+      .getRenderingOptions()
 
     assert.properties(renderingOptions, ['view', 'shiki'])
     assert.strictEqual(renderingOptions.view!.engine, edge)
@@ -44,7 +47,7 @@ test.group('Renderer', () => {
   test('fail when not template is registered', async ({ assert }) => {
     const edge = new Edge()
     assert.throws(
-      () => new Renderer(edge).getRenderingOptions(),
+      () => new Renderer(edge, new RenderingPipeline()).getRenderingOptions(),
       'Missing template path. Use "renderer.useTemplate" method to assign a template'
     )
   })

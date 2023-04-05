@@ -23,12 +23,15 @@ export class CollectionEntry extends BaseEntry {
   title: string
   permalink: string
   contentPath: string
+  meta: Record<string, any>
 
   constructor(options: DatabaseEntry) {
     super()
-    this.title = options.title
-    this.permalink = options.permalink
-    this.contentPath = options.contentPath
+    const { title, permalink, contentPath, ...rest } = options
+    this.title = title
+    this.permalink = permalink
+    this.contentPath = contentPath
+    this.meta = rest
   }
 
   /**

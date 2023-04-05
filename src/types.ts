@@ -9,8 +9,9 @@
 
 import type { Shiki } from '@dimerapp/shiki'
 import type { MarkdownFile } from '@dimerapp/markdown'
-import type { DimerEdgeRenderer } from '@dimerapp/edge'
+import type { RenderingPipeline } from '@dimerapp/edge'
 import type { Edge, EdgeRendererContract } from 'edge.js'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 
 /**
  * Representation of an entry inside the collection database
@@ -31,7 +32,7 @@ export type RenderingOptions = {
   view?: {
     engine: Edge
     template: string
-    renderer: DimerEdgeRenderer
+    pipeline: RenderingPipeline
   }
   shiki: Shiki
 }
@@ -43,3 +44,8 @@ export type RendererHook = (
   mdFile: MarkdownFile,
   view?: EdgeRendererContract
 ) => void | Promise<void>
+
+/**
+ * Callback function to render a page
+ */
+export type PageRenderer = (req: IncomingMessage, res: ServerResponse) => string | Promise<string>

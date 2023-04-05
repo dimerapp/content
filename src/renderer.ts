@@ -8,8 +8,10 @@
  */
 
 import type { Edge } from 'edge.js'
-import { DimerEdgeRenderer, type HookCallback, dimerEdge } from '@dimerapp/edge'
+import { type RenderingPipeline } from '@dimerapp/edge'
+import type { PipelineHook } from '@dimerapp/edge/types'
 import { type Theme, type IShikiTheme, type ILanguageRegistration, Shiki } from '@dimerapp/shiki'
+
 import type { RenderingOptions } from './types.js'
 
 /**
@@ -20,23 +22,25 @@ export class Renderer {
   #templateEngine?: Edge
   #templatePath?: string
   #shiki: Shiki = new Shiki()
-  #edgeRenderer: DimerEdgeRenderer = new DimerEdgeRenderer()
+  #renderingPipeline?: RenderingPipeline
 
-  constructor(edge?: Edge) {
+  constructor()
+  constructor(edge: Edge, renderingPipeline: RenderingPipeline)
+  constructor(edge?: Edge, renderingPipeline?: RenderingPipeline) {
     this.#templateEngine = edge
-    this.#templateEngine?.use(dimerEdge)
+    this.#renderingPipeline = renderingPipeline
   }
 
   /**
    * Hook into markdown rendering process and use custom edge
    * components for any AST node
    */
-  tap(callback: HookCallback): this {
-    if (!this.#templateEngine) {
+  tap(callback: PipelineHook): this {
+    if (!this.#renderingPipeline) {
       throw new Error(`Cannot modify AST without configuring a template engine first`)
     }
 
-    this.#edgeRenderer.use(callback)
+    this.#renderingPipeline.use(callback)
     return this
   }
 
@@ -83,7 +87,7 @@ export class Renderer {
         view: {
           engine: this.#templateEngine,
           template: this.#templatePath,
-          renderer: this.#edgeRenderer,
+          pipeline: this.#renderingPipeline!,
         },
         shiki: this.#shiki,
       }

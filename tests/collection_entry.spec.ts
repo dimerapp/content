@@ -10,6 +10,7 @@
 import { Edge } from 'edge.js'
 import { join } from 'node:path'
 import { test } from '@japa/runner'
+import { dimer, RenderingPipeline } from '@dimerapp/edge'
 import { Renderer } from '../src/renderer.js'
 import { CollectionEntry } from '../src/collection/collection_entry.js'
 
@@ -64,13 +65,17 @@ test.group('Content file', () => {
       [
         '<html>',
         '',
-        `@!component('dimer_contents', { nodes: file.ast.children, renderer })~`,
+        `@!component('dimer_contents', { nodes: file.ast.children, pipeline })~`,
         '',
         '</html>',
       ].join('\n')
     )
 
-    const renderer = new Renderer(new Edge().mount(fs.basePath))
+    const edge = new Edge()
+    edge.mount(fs.basePath)
+    edge.use(dimer)
+
+    const renderer = new Renderer(edge, new RenderingPipeline())
     renderer.codeBlocksTheme('nord').useTemplate('docs.edge')
 
     const entry = new CollectionEntry({
@@ -102,13 +107,17 @@ test.group('Content file', () => {
         '<html>',
         '',
         '<h1> {{ file.frontmatter.title }} </h1>',
-        `@!component('dimer_contents', { nodes: file.ast.children, renderer })~`,
+        `@!component('dimer_contents', { nodes: file.ast.children, pipeline })~`,
         '',
         '</html>',
       ].join('\n')
     )
 
-    const renderer = new Renderer(new Edge().mount(fs.basePath))
+    const edge = new Edge()
+    edge.mount(fs.basePath)
+    edge.use(dimer)
+
+    const renderer = new Renderer(edge, new RenderingPipeline())
     renderer
       .codeBlocksTheme('nord')
       .useTemplate('docs.edge')

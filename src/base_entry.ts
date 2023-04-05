@@ -120,7 +120,7 @@ export abstract class BaseEntry {
      */
     return viewInstance.render(view.template, {
       file,
-      renderer: view.renderer,
+      pipeline: view.pipeline,
       ...state,
     })
   }
