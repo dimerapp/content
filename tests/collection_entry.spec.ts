@@ -117,15 +117,14 @@ test.group('Content file', () => {
     edge.mount(fs.basePath)
     edge.use(dimer)
 
-    const renderer = new Renderer(edge, new RenderingPipeline())
-    renderer
-      .codeBlocksTheme('nord')
-      .useTemplate('docs.edge')
-      .tap((node) => {
-        if (node.tagName === 'h1') {
-          return false
-        }
-      })
+    const pipeline = new RenderingPipeline()
+    const renderer = new Renderer(edge, pipeline)
+    renderer.codeBlocksTheme('nord').useTemplate('docs.edge')
+    pipeline.use((node) => {
+      if (node.tagName === 'h1') {
+        return false
+      }
+    })
 
     const entry = new CollectionEntry({
       contentPath: join(fs.basePath, 'hello_world.md'),

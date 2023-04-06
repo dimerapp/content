@@ -37,13 +37,6 @@ test.group('Renderer', () => {
     )
   })
 
-  test('fail when trying to mutate ast without engine', async ({ assert }) => {
-    assert.throws(
-      () => new Renderer().tap(() => {}),
-      'Cannot modify AST without configuring a template engine first'
-    )
-  })
-
   test('fail when not template is registered', async ({ assert }) => {
     const edge = new Edge()
     assert.throws(

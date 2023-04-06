@@ -10,6 +10,7 @@
 import { codeblocks } from '@dimerapp/shiki'
 import { toHtml } from '@dimerapp/markdown/utils'
 import { MarkdownFile } from '@dimerapp/markdown'
+import * as macros from '@dimerapp/markdown/macros'
 import type { EdgeRendererContract } from 'edge.js'
 
 import { Renderer } from './renderer.js'
@@ -50,7 +51,7 @@ export abstract class BaseEntry {
    * MarkdownFile.
    */
   async #load() {
-    return new MarkdownFile(
+    const md = new MarkdownFile(
       await this.getFileContents(),
       Object.assign({
         allowHtml: true,
@@ -60,6 +61,16 @@ export abstract class BaseEntry {
         tocDepth: 3,
       })
     )
+
+    md.use(macros.codegroup)
+    md.use(macros.codesandbox)
+    md.use(macros.note)
+    md.use(macros.tip)
+    md.use(macros.warning)
+    md.use(macros.video)
+    md.use(macros.youtube)
+
+    return md
   }
 
   /**
