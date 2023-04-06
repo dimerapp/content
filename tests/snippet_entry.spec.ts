@@ -124,15 +124,15 @@ test.group('Snippet file', () => {
       ].join('\n')
     )
 
-    const renderer = new Renderer(new Edge().mount(fs.basePath).use(dimer), new RenderingPipeline())
-    renderer
-      .codeBlocksTheme('nord')
-      .useTemplate('docs.edge')
-      .tap((node) => {
-        if (node.tagName === 'h1') {
-          return false
-        }
-      })
+    const pipeline = new RenderingPipeline()
+    const renderer = new Renderer(new Edge().mount(fs.basePath).use(dimer), pipeline)
+    pipeline.use((node) => {
+      if (node.tagName === 'h1') {
+        return false
+      }
+    })
+
+    renderer.codeBlocksTheme('nord').useTemplate('docs.edge')
 
     const entry = Snippet.create(join(fs.basePath, 'hello_world.md'))
     const html = await entry
