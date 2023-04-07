@@ -65,7 +65,8 @@
   },
   "dependencies": {
     "@dimerapp/markdown": "^7.0.1-4",
-    "@dimerapp/shiki": "^4.0.1-5"
+    "@dimerapp/shiki": "^4.0.1-5",
+    "mdast-util-to-string": "^3.2.0"
   },
   "peerDependencies": {
     "@dimerapp/edge": "^3.0.0-6",

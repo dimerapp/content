@@ -11,6 +11,7 @@ import { EOL } from 'node:os'
 import { Edge } from 'edge.js'
 import { join } from 'node:path'
 import { test } from '@japa/runner'
+import { MarkdownFile } from '@dimerapp/markdown'
 import { RenderingPipeline, dimer } from '@dimerapp/edge'
 
 import { Renderer } from '../src/renderer.js'
@@ -324,7 +325,42 @@ test.group('Collection', (group) => {
       ].join(EOL)
     )
 
-    assert.equal(messages[0].reason, 'Broken link to "./hi.md"')
+    assert.equal(messages[0].reason, 'Invalid href "./hi.md" in link "Say hi"')
+  })
+
+  test('report empty links', async ({ assert, fs }) => {
+    await fs.create(
+      'db.json',
+      JSON.stringify([
+        {
+          permalink: '/hello',
+          contentPath: 'home.md',
+          title: 'Hello world',
+        },
+      ])
+    )
+
+    await fs.create('home.md', ['# Hello world', '', '[Say hi]()'].join(EOL))
+
+    let messages: any[] = []
+    const collection = Collection.create().db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
+    await collection.boot()
+
+    const doc = collection.findByPermalink('/hello')!
+
+    doc.rendering((file) => {
+      messages = file.messages
+    })
+
+    assert.equal(
+      await doc.render(),
+      [
+        '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
+        '<p><a href="">Say hi</a></p>',
+      ].join(EOL)
+    )
+
+    assert.equal(messages[0].reason, 'No href found in link "Say hi"')
   })
 
   test('resolve links to the same file', async ({ assert, fs }) => {
@@ -356,6 +392,73 @@ test.group('Collection', (group) => {
       [
         '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
         '<p><a href="#hello-world">Say hi</a></p>',
+      ].join(EOL)
+    )
+  })
+
+  test('convert relative assets to absolute path', async ({ assert, fs }) => {
+    await fs.create(
+      'db.json',
+      JSON.stringify([
+        {
+          permalink: '/hello',
+          contentPath: 'home.md',
+          title: 'Hello world',
+        },
+      ])
+    )
+
+    await fs.create('home.md', ['# Hello world', '', '![](../foo.jpg)'].join(EOL))
+
+    const collection = Collection.create().db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
+    await collection.boot()
+
+    const doc = collection.findByPermalink('/hello')!
+
+    assert.equal(
+      await doc.render(),
+      [
+        '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
+        `<p><img src="${join(fs.basePath, '../foo.jpg')}" alt=""></p>`,
+      ].join(EOL)
+    )
+  })
+
+  test('define collection rendering hook', async ({ assert, fs }) => {
+    assert.plan(2)
+
+    await fs.create(
+      'db.json',
+      JSON.stringify([
+        {
+          permalink: '/hello',
+          contentPath: 'home.md',
+          title: 'Hello world',
+        },
+        {
+          permalink: '/hi',
+          contentPath: 'hi.md',
+          title: 'Hi world',
+        },
+      ])
+    )
+
+    await fs.create('home.md', ['# Hello world', '', 'This is a simple markdown file'].join(EOL))
+
+    const collection = Collection.create()
+      .rendering((mdFile) => {
+        assert.instanceOf(mdFile, MarkdownFile)
+      })
+      .db(new URL('db.json', fs.baseUrl))
+      .urlPrefix('/docs')
+
+    await collection.boot()
+
+    assert.equal(
+      await collection.findByPermalink('/hello')!.render(),
+      [
+        '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
+        '<p>This is a simple markdown file</p>',
       ].join(EOL)
     )
   })

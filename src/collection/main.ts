@@ -10,6 +10,7 @@
 import { Db } from './db.js'
 import urlResolver from './url_resolver.js'
 import type { Renderer } from '../renderer.js'
+import type { RendererHook } from '../types.js'
 import { CollectionEntry } from './collection_entry.js'
 
 /**
@@ -53,6 +54,14 @@ export class Collection {
   #permalinks: Map<string, CollectionEntry> = new Map()
 
   /**
+   * Registered hooks
+   */
+  #hooks: {
+    rendering: Set<RendererHook>
+  } = {
+    rendering: new Set(),
+  }
+  /**
    * Removes the sourrounded slashes from a uri
    */
   #normalizeUri(uri: string) {
@@ -81,6 +90,10 @@ export class Collection {
       const collectionEntry = new CollectionEntry({
         ...entry,
         permalink: this.#applyPrefix(this.#normalizeUri(entry.permalink)),
+      })
+
+      this.#hooks.rendering.forEach((hook) => {
+        collectionEntry.rendering(hook)
       })
 
       if (this.#renderer) {
@@ -129,6 +142,16 @@ export class Collection {
    */
   useRenderer(renderer: Renderer) {
     this.#renderer = renderer
+    return this
+  }
+
+  /**
+   * Register a callback to hook into the markdown rendering processing.
+   * Make sure to define the rendering hook before calling the
+   * boot method
+   */
+  rendering(callback: RendererHook): this {
+    this.#hooks.rendering.add(callback)
     return this
   }
 

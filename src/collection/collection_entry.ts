@@ -14,6 +14,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import urlResolver from './url_resolver.js'
 import { BaseEntry } from '../base_entry.js'
 import type { DatabaseEntry } from '../types.js'
+import { toString } from 'mdast-util-to-string'
 
 /**
  * Collection entry represents a markdown file with a permalink
@@ -53,6 +54,12 @@ export class CollectionEntry extends BaseEntry {
    */
   protected async prepare(mdFile: MarkdownFile) {
     const filePath = mdFile.filePath
+    mdFile.frontmatter = {
+      ...this.meta,
+      title: this.title,
+      permalink: this.permalink,
+      ...mdFile.frontmatter,
+    }
 
     /**
      * Registering a hook to listen for anchor tags only if
@@ -60,14 +67,21 @@ export class CollectionEntry extends BaseEntry {
      */
     if (filePath) {
       mdFile.on('link', (node, $file) => {
+        if (!node.url) {
+          const message = $file.report(
+            `No href found in link "${toString(node)}"`,
+            node.position,
+            'broken-link-reference'
+          )
+          message.fatal = true
+          return
+        }
+
         const resolvedUrl = urlResolver.resolve(node.url, filePath)
 
-        /**
-         * Pointing to a content file not tracked by URL resolver.
-         */
         if (resolvedUrl === null) {
           const message = $file.report(
-            `Broken link to "${node.url}"`,
+            `Invalid href "${node.url}" in link "${toString(node)}"`,
             node.position,
             'broken-md-reference'
           )
@@ -75,6 +89,13 @@ export class CollectionEntry extends BaseEntry {
           return
         }
 
+        if (resolvedUrl) {
+          node.url = resolvedUrl
+        }
+      })
+
+      mdFile.on('image', (node) => {
+        const resolvedUrl = urlResolver.resolve(node.url, filePath)
         if (resolvedUrl) {
           node.url = resolvedUrl
         }

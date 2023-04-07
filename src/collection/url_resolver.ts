@@ -32,6 +32,18 @@ class URLResolver {
   }
 
   /**
+   * Check if pathname points to an asset file
+   */
+  #isAssetFile(pathname: string) {
+    return (
+      pathname.endsWith('.png') ||
+      pathname.endsWith('.jpeg') ||
+      pathname.endsWith('.jpg') ||
+      pathname.endsWith('.mp4')
+    )
+  }
+
+  /**
    * Track a content file path and its permalink
    */
   trackFile(filePath: string, permalink: string) {
@@ -54,11 +66,14 @@ class URLResolver {
     hash = hash || ''
     search = search || ''
 
+    if (!pathname || !this.#isRelative(pathname)) {
+      return false
+    }
+
     /**
-     * Making sure that we are only attempting to resolve path for
-     * content files (aka markdown).
+     * Resolve URL for the markdown file
      */
-    if (pathname && this.#isRelative(pathname) && this.#isMarkdownFile(pathname)) {
+    if (this.#isMarkdownFile(pathname)) {
       const absoluteFilePath = resolve(dirname(fromFilePath), pathname)
       if (absoluteFilePath === fromFilePath) {
         return `${search}${hash}`
@@ -66,6 +81,14 @@ class URLResolver {
 
       const filePermalink = this.#contentFiles.get(absoluteFilePath)
       return filePermalink ? `${filePermalink}${search}${hash}` : null
+    }
+
+    /**
+     * Resolve URL for the assets
+     */
+    if (this.#isAssetFile(pathname)) {
+      const absoluteFilePath = resolve(dirname(fromFilePath), pathname)
+      return `${absoluteFilePath}${search}${hash}`
     }
 
     return false
