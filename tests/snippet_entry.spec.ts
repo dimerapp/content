@@ -153,4 +153,25 @@ test.group('Snippet file', () => {
       ].join('\n')
     )
   })
+
+  test('use caption macro', async ({ assert }) => {
+    const entry = Snippet.createFromContents(
+      [':::caption[]{for="error"}', '#### Do not do this', ':::'].join('\n')
+    )
+
+    const html = await entry.render()
+    assert.equal(
+      html,
+      [
+        '<div class="caption caption-error"><h4 id="do-not-do-this"><a href="#do-not-do-this" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Do not do this</h4></div>',
+      ].join('\n')
+    )
+  })
+
+  test('use caption macro with inline content', async ({ assert }) => {
+    const entry = Snippet.createFromContents(['::caption[Do not do this]{for="error"}'].join('\n'))
+
+    const html = await entry.render()
+    assert.equal(html, ['<div class="caption caption-error">Do not do this</div>'].join('\n'))
+  })
 })

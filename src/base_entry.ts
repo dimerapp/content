@@ -69,6 +69,13 @@ export abstract class BaseEntry {
     md.use(macros.warning)
     md.use(macros.video)
     md.use(macros.youtube)
+    md.macro('caption', function (node) {
+      node.data = node.data || {}
+      node.data.hName = 'div'
+      node.data.hProperties = {
+        className: ['caption', `caption-${node.attributes.for}`],
+      }
+    })
 
     return md
   }
