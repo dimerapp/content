@@ -40,7 +40,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
-    "@dimerapp/edge": "^3.0.0-6",
+    "@dimerapp/edge": "^3.0.0",
     "@japa/assert": "^1.4.1",
     "@japa/file-system": "^1.0.1",
     "@japa/run-failed-tests": "^1.1.1",
@@ -64,12 +64,12 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@dimerapp/markdown": "^7.0.1-4",
-    "@dimerapp/shiki": "^4.0.1-5",
+    "@dimerapp/markdown": "^7.0.1",
+    "@dimerapp/shiki": "^4.1.0",
     "mdast-util-to-string": "^3.2.0"
   },
   "peerDependencies": {
-    "@dimerapp/edge": "^3.0.0-6",
+    "@dimerapp/edge": "^3.0.0",
     "edge.js": "^5.5.1"
   },
   "repository": {
