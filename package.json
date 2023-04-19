@@ -32,7 +32,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "prerelease"
+    "tag": "latest"
   },
   "keywords": [],
   "author": "virk,dimerapp",
