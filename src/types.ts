@@ -10,7 +10,7 @@
 import type { Shiki } from '@dimerapp/shiki'
 import type { MarkdownFile } from '@dimerapp/markdown'
 import type { RenderingPipeline } from '@dimerapp/edge'
-import type { Edge, EdgeRendererContract } from 'edge.js'
+import type { EdgeContract, EdgeRendererContract } from 'edge.js'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 /**
@@ -30,7 +30,7 @@ export type DatabaseEntry = {
  */
 export type RenderingOptions = {
   view?: {
-    engine: Edge
+    engine: EdgeContract
     template: string
     pipeline: RenderingPipeline
   }

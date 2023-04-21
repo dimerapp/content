@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import type { Edge } from 'edge.js'
+import type { EdgeContract } from 'edge.js'
 import { type RenderingPipeline } from '@dimerapp/edge'
 import { type Theme, type IShikiTheme, type ILanguageRegistration, Shiki } from '@dimerapp/shiki'
 
@@ -18,14 +18,14 @@ import type { RenderingOptions } from './types.js'
  * API.
  */
 export class Renderer {
-  #templateEngine?: Edge
+  #templateEngine?: EdgeContract
   #templatePath?: string
   #shiki: Shiki = new Shiki()
   #renderingPipeline?: RenderingPipeline
 
   constructor()
-  constructor(edge: Edge, renderingPipeline: RenderingPipeline)
-  constructor(edge?: Edge, renderingPipeline?: RenderingPipeline) {
+  constructor(edge: EdgeContract, renderingPipeline: RenderingPipeline)
+  constructor(edge?: EdgeContract, renderingPipeline?: RenderingPipeline) {
     this.#templateEngine = edge
     this.#renderingPipeline = renderingPipeline
   }
