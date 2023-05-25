@@ -119,6 +119,13 @@ export class Collection {
   }
 
   /**
+   * Refreshes the database
+   */
+  async refresh() {
+    await this.#loadDb()
+  }
+
+  /**
    * Define absolute path to the database file. The file contents will be used
    * as the source of truth for finding entries in this collection.
    * @required
