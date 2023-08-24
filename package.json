@@ -11,6 +11,9 @@
     "build/index.d.ts.map",
     "build/index.js"
   ],
+  "engines": {
+    "node": ">=18.16.0"
+  },
   "main": "./build/index.js",
   "exports": {
     ".": "./build/index.js",
