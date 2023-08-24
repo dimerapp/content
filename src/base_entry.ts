@@ -7,11 +7,11 @@
  * file that was distributed with this source code.
  */
 
+import type { Edge } from 'edge.js'
 import { codeblocks } from '@dimerapp/shiki'
 import { toHtml } from '@dimerapp/markdown/utils'
 import { MarkdownFile } from '@dimerapp/markdown'
 import * as macros from '@dimerapp/markdown/macros'
-import type { EdgeRendererContract } from 'edge.js'
 
 import { Renderer } from './renderer.js'
 import type { RendererHook } from './types.js'
@@ -29,7 +29,7 @@ const DEFAULT_RENDERER = new Renderer()
 export abstract class BaseEntry {
   abstract contentPath?: string
   protected abstract getFileContents(): Promise<string> | string
-  protected prepare?(mdFile: MarkdownFile, view?: EdgeRendererContract): Promise<void>
+  protected prepare?(mdFile: MarkdownFile, view?: ReturnType<Edge['createRenderer']>): Promise<void>
 
   /**
    * Registered hooks
@@ -69,7 +69,7 @@ export abstract class BaseEntry {
     md.use(macros.warning)
     md.use(macros.video)
     md.use(macros.youtube)
-    md.macro('caption', function (node) {
+    md.macro('caption', function (node: any) {
       node.data = node.data || {}
       node.data.hName = 'div'
       node.data.hProperties = {
@@ -106,7 +106,7 @@ export abstract class BaseEntry {
      * Use rendering options
      */
     const { shiki, view } = this.#renderer.getRenderingOptions()
-    const viewInstance = view ? view.engine.getRenderer() : undefined
+    const viewInstance = view ? view.engine.createRenderer() : undefined
     await shiki.boot()
 
     /**

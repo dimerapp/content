@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
+import type { Edge } from 'edge.js'
 import type { Shiki } from '@dimerapp/shiki'
 import type { MarkdownFile } from '@dimerapp/markdown'
 import type { RenderingPipeline } from '@dimerapp/edge'
-import type { EdgeContract, EdgeRendererContract } from 'edge.js'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 /**
@@ -30,7 +30,7 @@ export type DatabaseEntry = {
  */
 export type RenderingOptions = {
   view?: {
-    engine: EdgeContract
+    engine: Edge
     template: string
     pipeline: RenderingPipeline
   }
@@ -42,7 +42,7 @@ export type RenderingOptions = {
  */
 export type RendererHook = (
   mdFile: MarkdownFile,
-  view?: EdgeRendererContract
+  view?: ReturnType<Edge['createRenderer']>
 ) => void | Promise<void>
 
 /**

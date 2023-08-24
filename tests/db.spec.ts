@@ -33,9 +33,15 @@ test.group('Db', () => {
     await fs.create('db.json', JSON.stringify({}))
 
     const db = new Db(new URL('db.json', fs.baseUrl))
-    await assert.rejects(async () => {
-      await db.load()
-    }, `Invalid database structure. Expected "${join(fs.basePath, 'db.json')}" to contain an array of objects`)
+    await assert.rejects(
+      async () => {
+        await db.load()
+      },
+      `Invalid database structure. Expected "${join(
+        fs.basePath,
+        'db.json'
+      )}" to contain an array of objects`
+    )
   })
 
   test('fail when database entry is missing permalink', async ({ assert, fs }) => {
