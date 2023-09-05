@@ -462,4 +462,43 @@ test.group('Collection', (group) => {
       ].join(EOL)
     )
   })
+
+  test('tap into collection entry', async ({ assert, fs }) => {
+    await fs.create(
+      'db.json',
+      JSON.stringify([
+        {
+          permalink: '/hello',
+          contentPath: 'home.md',
+          title: 'Hello world',
+        },
+        {
+          permalink: '/hi',
+          contentPath: 'hi.md',
+          title: 'Hi world',
+        },
+      ])
+    )
+
+    const collection = Collection.create()
+    collection.db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
+    collection.tap((entry) => {
+      entry.permalink = `/tapped${entry.permalink}`
+    })
+
+    await collection.boot()
+
+    assert.containsSubset(collection.all(), [
+      {
+        permalink: '/tapped/docs/hello',
+        contentPath: join(fs.basePath, 'home.md'),
+        title: 'Hello world',
+      },
+      {
+        permalink: '/tapped/docs/hi',
+        contentPath: join(fs.basePath, 'hi.md'),
+        title: 'Hi world',
+      },
+    ])
+  })
 })

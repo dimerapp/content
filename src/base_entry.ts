@@ -15,6 +15,7 @@ import * as macros from '@dimerapp/markdown/macros'
 
 import { Renderer } from './renderer.js'
 import type { RendererHook } from './types.js'
+import { MarkdownFileOptions } from '@dimerapp/markdown/types'
 
 /**
  * The default shiki renderer to use when no custom renderer
@@ -30,6 +31,16 @@ export abstract class BaseEntry {
   abstract contentPath?: string
   protected abstract getFileContents(): Promise<string> | string
   protected prepare?(mdFile: MarkdownFile, view?: ReturnType<Edge['createRenderer']>): Promise<void>
+
+  /**
+   * Options passed to the markdown file
+   */
+  #markdownOptions: MarkdownFileOptions = {
+    allowHtml: true,
+    enableDirectives: true,
+    generateToc: true,
+    tocDepth: 3,
+  }
 
   /**
    * Registered hooks
@@ -51,16 +62,10 @@ export abstract class BaseEntry {
    * MarkdownFile.
    */
   async #load() {
-    const md = new MarkdownFile(
-      await this.getFileContents(),
-      Object.assign({
-        allowHtml: true,
-        enableDirectives: true,
-        filePath: this.contentPath,
-        generateToc: true,
-        tocDepth: 3,
-      })
-    )
+    const md = new MarkdownFile(await this.getFileContents(), {
+      ...this.#markdownOptions,
+      filePath: this.contentPath,
+    })
 
     md.use(macros.codegroup)
     md.use(macros.codesandbox)
@@ -78,6 +83,14 @@ export abstract class BaseEntry {
     })
 
     return md
+  }
+
+  /**
+   * Set markdown options for markdown files
+   */
+  setMarkdownOptions(options: MarkdownFileOptions): this {
+    this.#markdownOptions = { ...this.#markdownOptions, ...options }
+    return this
   }
 
   /**

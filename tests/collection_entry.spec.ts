@@ -198,4 +198,23 @@ test.group('Content file', () => {
       ].join('\n')
     )
   })
+
+  test('define custom markdown options', async ({ assert, fs }) => {
+    await fs.create('hello_world.md', ['# Hello world', '', '<p> This is HTML </p>'].join('\n'))
+
+    const entry = new CollectionEntry({
+      contentPath: join(fs.basePath, 'hello_world.md'),
+      permalink: '/hello',
+      title: 'Hello world',
+    })
+    entry.setMarkdownOptions({ allowHtml: false })
+    const html = await entry.render()
+
+    assert.equal(
+      html,
+      [
+        '<h1 id="hello-world"><a href="#hello-world" aria-hidden="true" tabindex="-1"><span class="icon icon-link"></span></a>Hello world</h1>',
+      ].join('\n')
+    )
+  })
 })

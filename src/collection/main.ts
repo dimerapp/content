@@ -12,6 +12,7 @@ import urlResolver from './url_resolver.js'
 import type { Renderer } from '../renderer.js'
 import type { RendererHook } from '../types.js'
 import { CollectionEntry } from './collection_entry.js'
+import { MarkdownFileOptions } from '@dimerapp/markdown/types'
 
 /**
  * A collection represents one or more markdown files meant to be rendered
@@ -25,6 +26,12 @@ export class Collection {
   static create() {
     return new Collection()
   }
+
+  /**
+   * Listeners to notify when we create a new collection
+   * entry
+   */
+  #entryListeners: Set<(entry: CollectionEntry) => void> = new Set()
 
   /**
    * Keeping a track of whether we have booted the collection or not. The
@@ -92,6 +99,16 @@ export class Collection {
         permalink: this.#applyPrefix(this.#normalizeUri(entry.permalink)),
       })
 
+      /**
+       * Invoke entry listeners
+       */
+      for (let listener of this.#entryListeners) {
+        listener(collectionEntry)
+      }
+
+      /**
+       * Define rendering hooks
+       */
       this.#hooks.rendering.forEach((hook) => {
         collectionEntry.rendering(hook)
       })
@@ -159,6 +176,14 @@ export class Collection {
    */
   rendering(callback: RendererHook): this {
     this.#hooks.rendering.add(callback)
+    return this
+  }
+
+  /**
+   * Tap into the instance of a collection entry
+   */
+  tap(listener: (entry: CollectionEntry) => void): this {
+    this.#entryListeners.add(listener)
     return this
   }
 
