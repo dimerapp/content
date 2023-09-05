@@ -12,7 +12,6 @@ import urlResolver from './url_resolver.js'
 import type { Renderer } from '../renderer.js'
 import type { RendererHook } from '../types.js'
 import { CollectionEntry } from './collection_entry.js'
-import { MarkdownFileOptions } from '@dimerapp/markdown/types'
 
 /**
  * A collection represents one or more markdown files meant to be rendered
