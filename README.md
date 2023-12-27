@@ -2,7 +2,7 @@ Dimer Content
 
 > Create markdown collections and snippets and later render them to HTML
 
-[![gh-workflow-image]][gh-workflow-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url] [![snyk-image]][snyk-url]
+[![gh-workflow-image]][gh-workflow-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url]
 
 > **Note**: This package is ESM only
 
@@ -309,5 +309,3 @@ edge.render('home', {
 [npm-url]: https://npmjs.org/package/@dimerapp/content 'npm'
 [license-image]: https://img.shields.io/npm/l/@dimerapp/content?color=blueviolet&style=for-the-badge
 [license-url]: LICENSE.md 'license'
-[snyk-image]: https://img.shields.io/snyk/vulnerabilities/github/dimerapp/content?label=Synk%20Vulnerabilities&style=for-the-badge
-[snyk-url]: https://snyk.io/test/github/dimerapp/content?targetFile=package.json 'snyk'
