@@ -44,11 +44,6 @@ export class Collection {
   #db?: Db
 
   /**
-   * The prefix to apply to all permalinks inside this collection.
-   */
-  #urlPrefix?: string
-
-  /**
    * A custom renderer to use when rendering the content file. If not
    * defined, we will do a standard markdown to HTML conversion
    */
@@ -67,6 +62,17 @@ export class Collection {
   } = {
     rendering: new Set(),
   }
+
+  /**
+   * The display name for the collection
+   */
+  declare name: string
+
+  /**
+   * The prefix to apply to all permalinks inside this collection.
+   */
+  prefix?: string
+
   /**
    * Removes the sourrounded slashes from a uri
    */
@@ -78,7 +84,7 @@ export class Collection {
    * Removes the sourrounded slashes from the permalink
    */
   #applyPrefix(permalink: string) {
-    return this.#urlPrefix ? `${this.#normalizeUri(this.#urlPrefix)}${permalink}` : permalink
+    return this.prefix ? `${this.#normalizeUri(this.prefix)}${permalink}` : permalink
   }
 
   /**
@@ -156,7 +162,7 @@ export class Collection {
    * get the given URL prefix.
    */
   urlPrefix(urlPrefix: string): this {
-    this.#urlPrefix = urlPrefix
+    this.prefix = urlPrefix
     return this
   }
 
@@ -183,6 +189,14 @@ export class Collection {
    */
   tap(listener: (entry: CollectionEntry) => void): this {
     this.#entryListeners.add(listener)
+    return this
+  }
+
+  /**
+   * Set the collection name
+   */
+  setName(name: string) {
+    this.name = name
     return this
   }
 
