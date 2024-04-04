@@ -101,7 +101,9 @@ export class Collection {
     dbEntries.forEach((entry) => {
       const collectionEntry = new CollectionEntry({
         ...entry,
-        permalink: this.#applyPrefix(this.#normalizeUri(entry.permalink)),
+        permalink: entry.absolute
+          ? this.#normalizeUri(entry.permalink)
+          : this.#applyPrefix(this.#normalizeUri(entry.permalink)),
       })
 
       /**

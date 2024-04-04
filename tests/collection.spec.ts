@@ -501,4 +501,32 @@ test.group('Collection', (group) => {
       },
     ])
   })
+
+  test('do not prefix absolute URLs', async ({ assert, fs }) => {
+    await fs.create(
+      'db.json',
+      JSON.stringify([
+        {
+          absolute: true,
+          permalink: '/hello',
+          contentPath: 'home.md',
+          title: 'Hello world',
+        },
+        {
+          permalink: '/hi',
+          contentPath: 'hi.md',
+          title: 'Hi world',
+        },
+      ])
+    )
+
+    const collection = Collection.create()
+    collection.db(new URL('db.json', fs.baseUrl)).urlPrefix('/docs')
+    await collection.boot()
+
+    assert.deepEqual(
+      collection.all().map((entry) => entry.permalink),
+      ['/hello', '/docs/hi']
+    )
+  })
 })

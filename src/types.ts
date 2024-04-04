@@ -18,6 +18,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
  * file.
  */
 export type DatabaseEntry = {
+  absolute?: boolean
   permalink: string
   contentPath: string
   title: string
