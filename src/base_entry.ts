@@ -112,14 +112,17 @@ export abstract class BaseEntry {
   /**
    * Render collection entry
    */
-  async render(state?: Record<string, any>): Promise<string> {
+  async render(
+    state?: Record<string, any>,
+    edgeRenderer?: ReturnType<Edge['createRenderer']>
+  ): Promise<string> {
     const file = await this.#load()
 
     /**
      * Use rendering options
      */
     const { shiki, view } = this.#renderer.getRenderingOptions()
-    const viewInstance = view ? view.engine.createRenderer() : undefined
+    const viewInstance = edgeRenderer || (view ? view.engine.createRenderer() : undefined)
     await shiki.boot()
 
     /**
