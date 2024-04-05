@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+import type { Edge } from 'edge.js'
 import { dirname, join } from 'node:path'
 import type { MarkdownFile } from '@dimerapp/markdown'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -106,12 +107,17 @@ export class CollectionEntry extends BaseEntry {
   /**
    * Writes the collection entry HTML to the disk
    */
-  async writeToDisk(outputDir: string, state?: Record<string, any>, filePath?: string) {
+  async writeToDisk(
+    outputDir: string,
+    state?: Record<string, any>,
+    filePath?: string,
+    edgeRenderer?: ReturnType<Edge['createRenderer']>
+  ) {
     filePath = filePath || `${this.#permalinkToFilePath(this.permalink)}.html`
     const outputPath = join(outputDir, filePath)
 
     await mkdir(dirname(outputPath), { recursive: true })
-    await writeFile(outputPath, await this.render(state))
+    await writeFile(outputPath, await this.render(state, edgeRenderer))
 
     return {
       outputDir,
